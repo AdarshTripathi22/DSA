@@ -28,26 +28,26 @@ Node *getCreatedNode(Node *root){
 	return root;
 }
 
-Node *createNode(Node *root,vector<string> v,int n){
-	queue<Node *> q;
-	int i = 0; Node *p;
-	while(i<n){
-		p = (v[i]=="null")?new Node(-1):new Node(stoi(v[i]));
+// Node *createNode(Node *root,vector<string> v,int n){
+// 	queue<Node *> q;
+// 	int i = 0; Node *p;
+// 	while(i<n){
+// 		p = (v[i]=="null")?new Node(-1):new Node(stoi(v[i]));
 
-		if(root == NULL){root=p;}
-		else if(q.front()->left==NULL){q.front()->left=p;}
-		else{q.front()->right=p; q.pop();}
-		if(p->data!=-1){q.push(p);} i++;
-	}	
-	stack<Node *> s;
-	s.push(root);
-	while(!s.empty()){
-		p=s.top(); s.pop();
-		if(p->left){if(p->left->data==-1){p->left=NULL;}else{s.push(p->left);}}
-		if(p->right){if(p->right->data==-1){p->right=NULL;}else{s.push(p->right);}}
-	}
-	return root;
-}
+// 		if(root == NULL){root=p;}
+// 		else if(q.front()->left==NULL){q.front()->left=p;}
+// 		else{q.front()->right=p; q.pop();}
+// 		if(p->data!=-1){q.push(p);} i++;
+// 	}	
+// 	stack<Node *> s;
+// 	s.push(root);
+// 	while(!s.empty()){
+// 		p=s.top(); s.pop();
+// 		if(p->left){if(p->left->data==-1){p->left=NULL;}else{s.push(p->left);}}
+// 		if(p->right){if(p->right->data==-1){p->right=NULL;}else{s.push(p->right);}}
+// 	}
+// 	return root;
+// }
 
 void print(Node *p){
 	if(p){
@@ -132,25 +132,65 @@ int maxSum(Node *root){
 	return root->data+max(leftSum,rightSum);
 }
 
+bool check(Node *root, int &val){
+	if(root == NULL) return 1;
+
+	bool left = check(root->left,val);
+	bool right = check(root->right,val);
+	
+	if(left && right){
+		if(root->left == NULL && root->right == NULL) {val++; cout<<root->data<<" "; return 1;}
+		else if((root->left && root->left->data == root->data) && (root->right && root->right->data == root->data)) {
+			val++; cout<<root->data<<" "; return 1;
+		}
+		else if(root->left == NULL && (root->right && root->right->data == root->data)){
+			val++; return 1;
+		}
+		else if(root->right == NULL && (root->left && root->left->data == root->data)){
+			val++; return 1;
+		}
+		else {return 0;}
+	}
+	return 0;
+}
+
+int unival_tree_count(Node *root){
+	int val = 0;
+
+	check(root,val);
+
+	return val;
+}
+
+void inorder(Node *root){
+	if(root){
+		inorder(root->left);
+		cout<<root->data<<" ";
+		inorder(root->right);
+	}
+}
+
+void levelorder(Node *root){
+	queue<Node *> q;
+	q.push(root);
+
+	while(!q.empty()){
+		root = q.front(); q.pop();
+		cout<<root->data<<" ";
+		if(root->left) {q.push(root->left);}
+		if(root->right) {q.push(root->right);}
+	}
+}
+
 int main(){
 	ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
 	
 	Node *root = NULL;
-	int a = INT_MIN;
-	vector<int> l;
+	
 	vector<string> v; string k;
-	while(cin>>k){
-		a = (k=="null")? a:max(a,stoi(k));
-		if(k!="null"){l.push_back(stoi(k));}
-		v.push_back(k);
-	}
 
-	sort(l.begin(),l.end());
+	while(cin>>k) v.push_back(k);
 
-	if(l[l.size()-1]<0){cout<<l[l.size()-1]<<endl; return 0;}
-
-	root = createNode(root,v,v.size());
-	maxSum(root);
-
-	cout<<ans<<endl;
+	root = createNode(root, v, v.size()); levelorder(root); cout<<endl;
+	cout<<unival_tree_count(root)<<endl;
 }
